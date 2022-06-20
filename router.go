@@ -17,38 +17,34 @@ const (
 	methodTrace   = http.MethodTrace
 )
 
-var (
-	methods = []string{methodGet, methodHead, methodPost, methodPut, methodPatch,
-		methodDelete, methodConnect, methodOptions, methodTrace}
-)
+var methods = []string{methodGet, methodHead, methodPost, methodPut, methodPatch,
+	methodDelete, methodConnect, methodOptions, methodTrace}
 
 type Router struct {
-	groups map[string]*Group
+	routers map[string]map[string]http.HandlerFunc
 }
 
 func NewRouter() *Router {
-	groups := make(map[string]*Group)
+	rr := make(map[string]map[string]http.HandlerFunc)
 	for _, m := range methods {
-		groups[m] = newGroup()
+		rr[m] = make(map[string]http.HandlerFunc)
 	}
 
 	return &Router{
-		groups: groups,
+		routers: rr,
 	}
 }
 
-// func (r *Router) Group(prefix string) *Group {
-
-// }
-
 func (r *Router) HandlerFunc(method, pattern string, handler http.HandlerFunc) {
-	g, ok := r.groups[method]
+	rr, ok := r.routers[method]
 	if !ok {
 		panic(fmt.Sprintf("register handler failed: the method(%s) error", method))
 	}
-	if err := g.register(pattern, handler); err != nil {
-		panic(fmt.Sprintf("register handler failed: %v", err))
+	_, ok = rr[pattern]
+	if ok {
+		panic(fmt.Sprintf("the router path %s conflict", pattern))
 	}
+	r.routers[method][pattern] = handler
 }
 
 func (r *Router) GET(pattern string, handler http.HandlerFunc) {
@@ -79,4 +75,15 @@ func (r *Router) Any(pattern string, handler http.HandlerFunc) {
 	for _, m := range methods {
 		r.HandlerFunc(m, pattern, handler)
 	}
+}
+
+func (r *Router) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	method := req.Method
+	path := req.URL.Path
+	handler, ok := r.routers[method][path]
+	if !ok {
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+	handler(w, req)
 }
