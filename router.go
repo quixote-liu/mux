@@ -5,20 +5,8 @@ import (
 	"net/http"
 )
 
-const (
-	methodGet     = http.MethodGet
-	methodHead    = http.MethodHead
-	methodPost    = http.MethodPost
-	methodPut     = http.MethodPut
-	methodPatch   = http.MethodPatch
-	methodDelete  = http.MethodDelete
-	methodConnect = http.MethodConnect
-	methodOptions = http.MethodOptions
-	methodTrace   = http.MethodTrace
-)
-
-var methods = []string{methodGet, methodHead, methodPost, methodPut, methodPatch,
-	methodDelete, methodConnect, methodOptions, methodTrace}
+var methods = []string{http.MethodGet, http.MethodHead, http.MethodPost, http.MethodPut, http.MethodPatch,
+	http.MethodDelete, http.MethodConnect, http.MethodOptions, http.MethodTrace}
 
 type Router struct {
 	routers map[string]map[string]http.HandlerFunc
@@ -48,27 +36,27 @@ func (r *Router) HandlerFunc(method, pattern string, handler http.HandlerFunc) {
 }
 
 func (r *Router) GET(pattern string, handler http.HandlerFunc) {
-	r.HandlerFunc(methodGet, pattern, handler)
+	r.HandlerFunc(http.MethodGet, pattern, handler)
 }
 
 func (r *Router) POST(pattern string, handler http.HandlerFunc) {
-	r.HandlerFunc(methodPost, pattern, handler)
+	r.HandlerFunc(http.MethodPost, pattern, handler)
 }
 
 func (r *Router) PUT(pattern string, handler http.HandlerFunc) {
-	r.HandlerFunc(methodPut, pattern, handler)
+	r.HandlerFunc(http.MethodPut, pattern, handler)
 }
 
 func (r *Router) PATCH(pattern string, handler http.HandlerFunc) {
-	r.HandlerFunc(methodPatch, pattern, handler)
+	r.HandlerFunc(http.MethodPatch, pattern, handler)
 }
 
 func (r *Router) DELETE(pattern string, handler http.HandlerFunc) {
-	r.HandlerFunc(methodDelete, pattern, handler)
+	r.HandlerFunc(http.MethodDelete, pattern, handler)
 }
 
 func (r *Router) OPTIONS(pattern string, handler http.HandlerFunc) {
-	r.HandlerFunc(methodOptions, pattern, handler)
+	r.HandlerFunc(http.MethodOptions, pattern, handler)
 }
 
 func (r *Router) Any(pattern string, handler http.HandlerFunc) {
